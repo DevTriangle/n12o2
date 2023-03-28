@@ -27,7 +27,7 @@ class PasswordActivity: ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-
+                    ScreenContent()
                 }
             }
         }

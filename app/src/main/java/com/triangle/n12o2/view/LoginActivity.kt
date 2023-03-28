@@ -1,9 +1,7 @@
 package com.triangle.n12o2.view
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Space
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,11 +20,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import com.triangle.n12o2.LoginViewModel
+import com.triangle.n12o2.viewmodel.LoginViewModel
 import com.triangle.n12o2.ui.theme.N12o2Theme
 import com.triangle.n12o2.R
 import com.triangle.n12o2.ui.components.AppButton
@@ -85,6 +82,7 @@ class LoginActivity : ComponentActivity() {
                 isLoading = false
 
                 val intent = Intent(mContext, CodeActivity::class.java)
+                intent.putExtra("email", email)
                 startActivity(intent)
             }
         }

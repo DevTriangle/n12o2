@@ -1,6 +1,6 @@
 package com.triangle.n12o2.view
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,22 +9,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import com.triangle.n12o2.LoginViewModel
+import com.triangle.n12o2.viewmodel.LoginViewModel
 import com.triangle.n12o2.ui.theme.N12o2Theme
 import com.triangle.n12o2.ui.theme.inputBG
 import com.triangle.n12o2.R
+import com.triangle.n12o2.common.DataSaver
+import com.triangle.n12o2.ui.components.AppTextButton
 import com.triangle.n12o2.ui.components.AppTextField
+import com.triangle.n12o2.ui.components.LoadingDialog
+import com.triangle.n12o2.ui.theme.captionColor
 import com.triangle.n12o2.ui.theme.descriptionColor
 import kotlinx.coroutines.delay
 
@@ -67,6 +73,29 @@ class CodeActivity : ComponentActivity() {
         var timer by rememberSaveable { mutableStateOf(60) }
         val email = intent.getStringExtra("email")
 
+        var isLoading by rememberSaveable { mutableStateOf(false) }
+        var isError by rememberSaveable { mutableStateOf(false) }
+
+        val errorMessage by viewModel.message.observeAsState()
+        LaunchedEffect(errorMessage) {
+            if (errorMessage != null) {
+                isError = true
+                isLoading = false
+            }
+        }
+
+        val token by viewModel.token.observeAsState()
+        LaunchedEffect(token) {
+            if (token != null) {
+                isLoading = false
+
+                DataSaver().saveToken(sharedPreferences, token!!)
+
+                val intent = Intent(mContext, PasswordActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
         LaunchedEffect(timer) {
             delay(1000)
 
@@ -82,6 +111,7 @@ class CodeActivity : ComponentActivity() {
             topBar = {
                 Box(
                     modifier = Modifier
+                        .padding(20.dp)
                         .size(32.dp)
                         .clip(MaterialTheme.shapes.small)
                         .background(
@@ -92,7 +122,8 @@ class CodeActivity : ComponentActivity() {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_back),
                         contentDescription = "",
-                        tint = descriptionColor
+                        tint = descriptionColor,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
@@ -113,7 +144,7 @@ class CodeActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         AppTextField(
@@ -124,9 +155,14 @@ class CodeActivity : ComponentActivity() {
                                 }
                             },
                             modifier = Modifier
-                                .size(48.dp)
-                                .padding(end = 16.dp),
-                            contentPadding = PaddingValues(5.dp)
+                                .padding(end = 16.dp)
+                                .size(48.dp),
+                            contentPadding = PaddingValues(10.dp),
+                            textStyle = TextStyle(
+                                fontSize = 20.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
                         )
                         AppTextField(
                             value = code2,
@@ -136,9 +172,14 @@ class CodeActivity : ComponentActivity() {
                                 }
                             },
                             modifier = Modifier
-                                .size(48.dp)
-                                .padding(end = 16.dp),
-                            contentPadding = PaddingValues(5.dp)
+                                .padding(end = 16.dp)
+                                .size(48.dp),
+                            contentPadding = PaddingValues(10.dp),
+                            textStyle = TextStyle(
+                                fontSize = 20.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
                         )
                         AppTextField(
                             value = code3,
@@ -148,9 +189,14 @@ class CodeActivity : ComponentActivity() {
                                 }
                             },
                             modifier = Modifier
-                                .size(48.dp)
-                                .padding(end = 16.dp),
-                            contentPadding = PaddingValues(5.dp)
+                                .padding(end = 16.dp)
+                                .size(48.dp),
+                            contentPadding = PaddingValues(10.dp),
+                            textStyle = TextStyle(
+                                fontSize = 20.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
                         )
 
                         AppTextField(
@@ -158,16 +204,48 @@ class CodeActivity : ComponentActivity() {
                             onValueChange = { code ->
                                 if (code.length < 2) {
                                     code4 = code
-                                    viewModel.logIn(email, "${code1}${code2}${code3}${code4}")
+                                    viewModel.logIn(email!!, "${code1}${code2}${code3}${code4}")
+                                    isLoading = true
                                 }
                             },
                             modifier = Modifier
                                 .size(48.dp),
-                            contentPadding = PaddingValues(5.dp)
+                            contentPadding = PaddingValues(10.dp),
+                            textStyle = TextStyle(
+                                fontSize = 20.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
                         )
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Отправить код повторно можно будет через $timer секунд",
+                        color = captionColor,
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
+        }
+
+        if (isError) {
+            AlertDialog(
+                onDismissRequest = { isError = false },
+                title = {
+                    Text(text = "Ошибка", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                },
+                text = {
+                    Text(text = errorMessage.toString())
+                },
+                buttons = {
+                    AppTextButton(onClick = { isError = false }, label = "Ок")
+                }
+            )
+        }
+
+        if (isLoading) {
+            LoadingDialog()
         }
     }
 }

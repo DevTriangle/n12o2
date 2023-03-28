@@ -1,4 +1,4 @@
-package com.triangle.n12o2
+package com.triangle.n12o2.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
