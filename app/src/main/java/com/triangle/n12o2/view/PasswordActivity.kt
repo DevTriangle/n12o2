@@ -1,5 +1,6 @@
-package com.triangle.n12o2
+package com.triangle.n12o2.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.triangle.n12o2.ui.theme.N12o2Theme
 
-class MainActivity : ComponentActivity() {
+/*
+Описание: Активити экрана создания пароля
+Дата создания: 28.03.2023 08:36
+Автор: Хасанов Альберт
+*/
+class PasswordActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -21,22 +27,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
+    /*
+    Описание: Содержание экрана создания пароля
+    Дата создания: 28.03.2023 08:37
+    Автор: Хасанов Альберт
+    */
+    @Composable
+    fun ScreenContent() {
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    N12o2Theme {
-        Greeting("Android")
     }
 }
